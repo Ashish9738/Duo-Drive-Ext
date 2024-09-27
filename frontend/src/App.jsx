@@ -1,13 +1,9 @@
 import Widget from "./ui/Widget";
 import Button from "./components/Button";
+import Card from "./components/Card";
 
 const App = () => {
-  return (
-    <>
-      <Widget />
-      <Button text="Send" />
-    </>
-  );
+  return <>Huh</>;
 };
 
 export default App;
