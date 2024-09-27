@@ -1,0 +1,25 @@
+{
+  "name": "duodrive",
+  "version": "1.0.0",
+  "description": "DuoDrive is your own pair learner and this is the backend for it",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "duodrive"
+  ],
+  "author": "Ashish",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  }
+}
