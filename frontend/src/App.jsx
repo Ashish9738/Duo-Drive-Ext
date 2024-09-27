@@ -1,9 +1,12 @@
-import Widget from "./ui/Widget";
+import Voice from "./components/Voice";
 import Button from "./components/Button";
-import Card from "./components/Card";
-
 const App = () => {
-  return <>Huh</>;
+  return (
+    <>
+      <Voice></Voice>
+      <Button text="Send"></Button>
+    </>
+  );
 };
 
 export default App;

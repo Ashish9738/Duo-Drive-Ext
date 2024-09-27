@@ -12,7 +12,7 @@ const Card = ({ content }) => {
   return (
     <>
       <div
-        className="bg-gray-400 max-w-[275px] font-semibold text-sm rounded-md overflow-hidden px-5 py-5 break-all"
+        className="bg-gray-400 max-w-[275px] font-semibold text-sm rounded-md overflow-hidden px-5 py-5 break-all text-black"
         ref={cardRef}
         style={{ height }}
       >
