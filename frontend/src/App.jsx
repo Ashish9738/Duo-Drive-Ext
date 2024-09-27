@@ -1,13 +1,13 @@
-import { useState } from "react";
+import Widget from "./ui/Widget";
+import Button from "./components/Button";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App = () => {
   return (
     <>
-      <div className="bg-black text-white">Sup!!</div>
+      <Widget />
+      <Button text="Send" />
     </>
   );
-}
+};
 
 export default App;
