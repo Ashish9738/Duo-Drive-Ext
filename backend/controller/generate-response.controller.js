@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const generateResponse = async (req, res) => {
+export const chatWithYourPeer = async (req, res) => {
   try {
     const { prompt } = req.body;
 
@@ -8,17 +8,34 @@ export const generateResponse = async (req, res) => {
       return res.status(400).json({ message: "Prompt is required" });
     }
 
+    if (!req.session.history) {
+      req.session.history = [];
+    }
+
+    req.session.history.push({
+      role: "user",
+      parts: [{ text: prompt }],
+    });
+
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const result = await model.generateContent(prompt);
-    const response = result.response.text();
-    res.status(200).json({
-      response,
+    const chat = model.startChat();
+    let result = await chat.sendMessage(prompt);
+
+    req.session.history.push({
+      role: "model",
+      parts: [{ text: result.response.text() }],
+    });
+
+    res.json({
+      message: result.response.text(),
+      history: req.session.history,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Failed to get the response",
+      message: "Failed to chat",
+      error: error.message,
     });
   }
 };

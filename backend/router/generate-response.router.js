@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { generateResponse } from "../controller/generate-response.js";
+import { chatWithYourPeer } from "../controller/generate-response.controller.js";
 
 const router = Router();
 
-router.route("/gen-res").post(generateResponse);
+router.route("/chat").post(chatWithYourPeer);
 
 export default router;
