@@ -6,4 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+import responseRouter from "../backend/router/generate-response.router";
+
+app.use("/api/v1", responseRouter);
+
 export default app;
