@@ -7,6 +7,5 @@ import {
 const router = Router();
 
 router.route("/chat").post(chatWithYourPeer);
-router.route("/voice-chat").post(talkToYourPeer);
 
 export default router;
