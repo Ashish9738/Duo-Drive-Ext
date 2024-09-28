@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-  chatWithYourPeer,
-  talkToYourPeer,
-} from "../controller/generate-response.controller.js";
+import { chatWithYourPeer } from "../controller/generate-response.controller.js";
 
 const router = Router();
 

@@ -29,7 +29,6 @@ export const chatWithYourPeer = async (req, res) => {
     });
 
     res.json({
-      message: result.response.text(),
       history: req.session.history,
     });
   } catch (error) {
