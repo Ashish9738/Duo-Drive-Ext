@@ -1,10 +1,8 @@
-import Voice from "./components/Voice";
-import Button from "./components/Button";
+import Widget from "./ui/Widget";
 const App = () => {
   return (
     <>
-      <Voice></Voice>
-      <Button text="Send"></Button>
+      <Widget />
     </>
   );
 };
