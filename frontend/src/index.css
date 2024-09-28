@@ -1,3 +1,82 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  /* For Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* For IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Talk to peer */
+.talk-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px; /* Adjust as needed */
+  width: 100px; /* Adjust as needed */
+  background-color: transparent;
+}
+
+/* Circle background for the listening effect */
+.listening {
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.7)
+  );
+  height: 100px; /* Match mic image size */
+  width: 100px; /* Match mic image size */
+  border-radius: 50%;
+  animation: pulse 2s infinite; /* Add pulse animation */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Expanding and contracting effect */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* Fog-like effect (optional) */
+.fog {
+  position: absolute;
+  z-index: 0;
+  width: 120px; /* Adjust size if needed */
+  height: 120px; /* Adjust size if needed */
+  background: rgba(255, 255, 255, 0.05);
+  filter: blur(10px);
+  border-radius: 50%;
+  animation: fog-motion 4s infinite;
+}
+
+/* Fog movement */
+@keyframes fog-motion {
+  0% {
+    transform: translate(-5px, -5px) scale(1);
+  }
+  50% {
+    transform: translate(5px, 5px) scale(1.2);
+  }
+  100% {
+    transform: translate(-5px, -5px) scale(1);
+  }
+}
