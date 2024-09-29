@@ -10,7 +10,7 @@ const TalkToPeer = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [persistentTranscript, setPersistentTranscript] = useState("");
-
+  const [browserSupport, setBrowserSupport] = useState(null);
   const transcriptRef = useRef(null);
 
   const {
@@ -48,6 +48,17 @@ const TalkToPeer = () => {
       );
     }
   }, [results]);
+
+  useEffect(() => {
+    const checkBrowserSupport = () => {
+      const speechRecognitionSupport =
+        "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
+      const speechSynthesisSupport = "speechSynthesis" in window;
+      setBrowserSupport(speechRecognitionSupport && speechSynthesisSupport);
+    };
+
+    checkBrowserSupport();
+  }, []);
 
   const speakText = (text) => {
     if ("speechSynthesis" in window) {
@@ -103,6 +114,7 @@ const TalkToPeer = () => {
       speakText(modelResponse);
     } catch (error) {
       console.error("Failed to get the response", error);
+      setIsSpeaking(false);
     } finally {
       setIsProcessing(false);
     }
@@ -124,8 +136,8 @@ const TalkToPeer = () => {
 
   const listening = isRecording || isSpeaking;
 
-  if (error) {
-    return <p>Web Speech API is not available in this browser: {error}</p>;
+  if (browserSupport === null) {
+    return <div>Checking browser support...</div>;
   }
 
   return (
@@ -151,9 +163,11 @@ const TalkToPeer = () => {
         ) : (
           <div
             onClick={handleToggleConversation}
-            className="start-text px-4 py-2 text-white cursor-pointer select-none"
+            className="start-text px-4 py-2 text-white cursor-pointer select-none font-mono text-sm"
           >
-            {isSpeaking
+            {browserSupport === false
+              ? "Browser Not Supported"
+              : isSpeaking
               ? "Comprehending..."
               : isRecording
               ? "Stop Listening"
@@ -163,10 +177,10 @@ const TalkToPeer = () => {
       </div>
 
       <div className="w-full max-w-md p-4 bg-gray-600 rounded-lg mb-2">
-        <p className="mb-1">Transcript:</p>
+        <p className="mb-1 font-mono text-sm">Transcript:</p>
 
         <div
-          className="h-[100px] overflow-y-auto no-scrollbar bg-gray-500 p-2 rounded"
+          className="h-[100px] overflow-y-auto no-scrollbar bg-gray-800 p-2 rounded font-mono text-sm"
           ref={transcriptRef}
         >
           {persistentTranscript}

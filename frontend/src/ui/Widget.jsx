@@ -72,7 +72,7 @@ const Widget = () => {
                   }`}
                 >
                   <Card
-                    content={`${entry.role === "user" ? "User:" : "Gemini:"} ${
+                    content={`${entry.role === "user" ? "You:" : "Gemini:"} ${
                       part.text
                     }`}
                   />
