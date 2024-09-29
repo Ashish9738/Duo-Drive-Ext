@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import micImage from "../assets/mic.jpg";
+import axios from "axios";
+import { URL } from "../utils/constant";
 
 const TalkToPeer = () => {
   const {
@@ -10,55 +12,108 @@ const TalkToPeer = () => {
     results,
     startSpeechToText,
     stopSpeechToText,
-    resetTranscript,
   } = useSpeechToText({
     continuous: true,
     useLegacyResults: false,
+    crossBrowser: true,
+    speechRecognitionProperties: {
+      interimResults: true,
+    },
   });
 
-  if (error)
-    return (
-      <p className="error-message">
-        Web Speech API is not available in this browser 🤷‍
-      </p>
-    );
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [response, setResponse] = useState(null);
+  const [transcript, setTranscript] = useState("");
 
-  const handleListen = () => {
+  useEffect(() => {
+    if (results.length > 0) {
+      setTranscript(results[results.length - 1].transcript);
+    }
+  }, [results]);
+
+  const stopListening = () => {
+    stopSpeechToText();
+    sendCurrentSpeech();
+  };
+
+  const sendCurrentSpeech = () => {
+    if (transcript.trim()) {
+      generateResponse(transcript.trim());
+    }
+  };
+
+  const generateResponse = async (text) => {
+    setIsProcessing(true);
+    setResponse(null);
+
+    const data = { prompt: text };
+    try {
+      const res = await axios.post(`${URL}/chat`, data);
+      console.log("Received response:", res.data);
+      setResponse(res.data.response);
+    } catch (error) {
+      console.error("Failed to get the response", error);
+      setResponse("Error getting response from server.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleToggleConversation = () => {
     if (isRecording) {
-      stopSpeechToText();
+      stopListening();
     } else {
+      setTranscript("");
+      setResponse(null);
       startSpeechToText();
     }
   };
 
+  if (error) {
+    return <p>Web Speech API is not available in this browser: {error}</p>;
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black text-white">
-      <div className="talk-container relative mb-4">
+      <div className="talk-container relative mt-2">
         <img
           src={micImage}
           alt="Microphone"
-          className="mic-icon h-20 w-20 cursor-pointer relative z-10"
-          onClick={handleListen}
+          className={`mic-icon ${
+            isProcessing ? "h-[80px] w-[80px]" : "h-[54px] w-[54px]"
+          } relative z-10`}
         />
+        {isProcessing && (
+          <div className="absolute inset-0 flex justify-center items-center">
+            <div className="loader"></div>
+          </div>
+        )}
       </div>
-      <p className="mb-2">
-        {isRecording ? "Listening..." : "Click the mic to start speaking"}
-      </p>
-      <div className="transcript-container w-full max-w-md p-4 bg-gray-800 rounded-lg">
-        <p className="mb-2">Transcript:</p>
-        <ul className="min-h-[100px] bg-gray-700 p-2 rounded">
-          {results.map((result) => (
-            <li key={result.timestamp}>{result.transcript}</li>
-          ))}
-          {interimResult && <li className="interim-result">{interimResult}</li>}
-        </ul>
-      </div>
+
       <button
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        onClick={resetTranscript}
+        onClick={handleToggleConversation}
+        className="start-button mb-2"
+        disabled={isProcessing}
       >
-        Reset
+        {isRecording ? "Stop Listening" : "Start Conversation"}
       </button>
+
+      <div className="w-full max-w-md p-4 bg-gray-600 rounded-lg mb-2">
+        <p className="mb-1">Transcript:</p>
+        <div className="h-[100px] overflow-y-auto bg-gray-500 p-2 rounded">
+          {transcript}
+          {interimResult && (
+            <span className="text-gray-400"> {interimResult}</span>
+          )}
+        </div>
+      </div>
+
+      {response && (
+        <div className="response-box w-full max-w-md p-4 bg-blue-600 rounded-lg mt-2">
+          <p className="mb-1">Response:</p>
+          <p>{response}</p>
+        </div>
+      )}
     </div>
   );
 };
