@@ -41,6 +41,38 @@ const TalkToPeer = () => {
     }
   }, [results]);
 
+  const speakText = (text) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+
+      const chunks = text.match(/.{1,200}/g);
+      let chunkIndex = 0;
+
+      const speakNextChunk = () => {
+        if (chunkIndex < chunks.length) {
+          const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+
+          utterance.onend = () => {
+            chunkIndex++;
+            speakNextChunk();
+          };
+
+          utterance.onerror = (event) => {
+            console.error("Speech synthesis error:", event.error);
+          };
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          console.log("All chunks spoken.");
+        }
+      };
+
+      speakNextChunk();
+    } else {
+      console.error("Speech Synthesis is not supported in this browser.");
+    }
+  };
+
   const generateResponse = async (text) => {
     setIsProcessing(true);
     setResponse(null);
@@ -49,7 +81,13 @@ const TalkToPeer = () => {
     try {
       const res = await axios.post(`${URL}/chat`, data);
       console.log("Received response:", res.data);
-      setResponse(res.data.response);
+      const modelResponse =
+        res.data.history
+          ?.filter((entry) => entry.role === "model")
+          ?.map((entry) => entry.parts?.map((part) => part.text).join(" "))
+          ?.join(" ") || "No response from model";
+      setResponse(modelResponse);
+      speakText(modelResponse);
     } catch (error) {
       console.error("Failed to get the response", error);
       setResponse("Error getting response from server.");
@@ -107,13 +145,6 @@ const TalkToPeer = () => {
           {transcript && <span className="text-gray-400"> {transcript}</span>}
         </div>
       </div>
-
-      {response && (
-        <div className="response-box w-full max-w-md p-4 bg-blue-600 rounded-lg mt-2">
-          <p className="mb-1">Response:</p>
-          <p>{response}</p>
-        </div>
-      )}
     </div>
   );
 };
