@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import micImage from "../assets/mic.jpg";
 import axios from "axios";
 import { URL } from "../utils/constant";
+import Loader from "../components/Loader";
 
 const TalkToPeer = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [response, setResponse] = useState(null);
+  const [transcript, setTranscript] = useState("");
+  const [persistentTranscript, setPersistentTranscript] = useState("");
+
   const {
     error,
     interimResult,
@@ -21,26 +27,19 @@ const TalkToPeer = () => {
     },
   });
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [response, setResponse] = useState(null);
-  const [transcript, setTranscript] = useState("");
+  useEffect(() => {
+    if (interimResult) {
+      setTranscript(interimResult);
+    }
+  }, [interimResult]);
 
   useEffect(() => {
-    if (results.length > 0) {
-      setTranscript(results[results.length - 1].transcript);
+    if (results.length > 0 && results[results.length - 1].isFinal) {
+      setPersistentTranscript(
+        (prev) => prev + " " + results[results.length - 1].transcript
+      );
     }
   }, [results]);
-
-  const stopListening = () => {
-    stopSpeechToText();
-    sendCurrentSpeech();
-  };
-
-  const sendCurrentSpeech = () => {
-    if (transcript.trim()) {
-      generateResponse(transcript.trim());
-    }
-  };
 
   const generateResponse = async (text) => {
     setIsProcessing(true);
@@ -61,8 +60,13 @@ const TalkToPeer = () => {
 
   const handleToggleConversation = () => {
     if (isRecording) {
-      stopListening();
+      stopSpeechToText();
+      const fullTranscript = persistentTranscript + " " + transcript;
+      setPersistentTranscript(fullTranscript.trim());
+      setTranscript("");
+      generateResponse(fullTranscript.trim());
     } else {
+      setPersistentTranscript("");
       setTranscript("");
       setResponse(null);
       startSpeechToText();
@@ -79,32 +83,28 @@ const TalkToPeer = () => {
         <img
           src={micImage}
           alt="Microphone"
-          className={`mic-icon ${
-            isProcessing ? "h-[80px] w-[80px]" : "h-[54px] w-[54px]"
-          } relative z-10`}
+          className="mic-icon h-[54px] w-[54px] relative z-10"
         />
-        {isProcessing && (
-          <div className="absolute inset-0 flex justify-center items-center">
-            <div className="loader"></div>
+      </div>
+
+      <div className="relative mb-2 h-10 flex items-center justify-center">
+        {isProcessing ? (
+          <Loader />
+        ) : (
+          <div
+            onClick={handleToggleConversation}
+            className="start-text px-4 py-2 text-white cursor-pointer select-none"
+          >
+            {isRecording ? "Stop Listening" : "Start Conversation"}
           </div>
         )}
       </div>
 
-      <button
-        onClick={handleToggleConversation}
-        className="start-button mb-2"
-        disabled={isProcessing}
-      >
-        {isRecording ? "Stop Listening" : "Start Conversation"}
-      </button>
-
       <div className="w-full max-w-md p-4 bg-gray-600 rounded-lg mb-2">
         <p className="mb-1">Transcript:</p>
         <div className="h-[100px] overflow-y-auto bg-gray-500 p-2 rounded">
-          {transcript}
-          {interimResult && (
-            <span className="text-gray-400"> {interimResult}</span>
-          )}
+          {persistentTranscript}
+          {transcript && <span className="text-gray-400"> {transcript}</span>}
         </div>
       </div>
 
