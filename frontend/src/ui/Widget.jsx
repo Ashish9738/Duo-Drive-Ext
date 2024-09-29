@@ -90,6 +90,10 @@ const Widget = () => {
               className="outline-none h-8 flex-grow rounded-tl-lg rounded-bl-lg ml-1 text-black text-sm font-mono px-3"
               onChange={(e) => setInput(e.target.value)}
               value={input}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleChat();
+                }}}
             />
             {loader ? <Loader /> : <Button onClick={handleChat} />}
           </div>
