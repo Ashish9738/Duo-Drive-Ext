@@ -16,8 +16,9 @@ const Widget = () => {
   const endOfMessagesRef = useRef(null);
 
   const handleChat = async () => {
+    const promptToBeSent = `Give me in the plain text ${input}`;
     const data = {
-      prompt: input,
+      prompt: promptToBeSent,
     };
     setLoader(true);
     try {
@@ -34,7 +35,6 @@ const Widget = () => {
   };
 
   const ToggleTalkToPeer = () => {
-    console.log("hey");
     setShowTalkToPeer(!showTalkToPeer);
   };
 

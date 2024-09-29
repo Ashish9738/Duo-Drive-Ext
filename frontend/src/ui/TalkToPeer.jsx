@@ -83,7 +83,8 @@ const TalkToPeer = () => {
 
   const generateResponse = async (text) => {
     setIsProcessing(true);
-    const data = { prompt: text };
+    const promptToBeSent = `Give me in the plain text ${text}`;
+    const data = { prompt: promptToBeSent };
     try {
       const res = await axios.post(`${URL}/chat`, data);
       const modelResponse =
@@ -144,7 +145,11 @@ const TalkToPeer = () => {
             onClick={handleToggleConversation}
             className="start-text px-4 py-2 text-white cursor-pointer select-none"
           >
-            {isRecording ? "Stop Listening" : "Start Conversation"}
+            {isSpeaking
+              ? "Comprehending..."
+              : isRecording
+              ? "Stop Listening"
+              : "Start Conversation"}
           </div>
         )}
       </div>
