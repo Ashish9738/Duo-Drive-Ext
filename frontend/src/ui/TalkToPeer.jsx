@@ -11,6 +11,7 @@ const TalkToPeer = () => {
   const [transcript, setTranscript] = useState("");
   const [persistentTranscript, setPersistentTranscript] = useState("");
   const [browserSupport, setBrowserSupport] = useState(null);
+  const [micPermission, setMicPermission] = useState(null); 
   const transcriptRef = useRef(null);
 
   const {
@@ -49,6 +50,19 @@ const TalkToPeer = () => {
     }
   }, [results]);
 
+  
+  const requestMicPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (stream) {
+        setMicPermission(true);
+      }
+    } catch (error) {
+      setMicPermission(false);
+      console.error("Mic permission denied", error);
+    }
+  };
+
   useEffect(() => {
     const checkBrowserSupport = () => {
       const speechRecognitionSupport =
@@ -57,7 +71,16 @@ const TalkToPeer = () => {
       setBrowserSupport(speechRecognitionSupport && speechSynthesisSupport);
     };
 
+    const checkBrowser = () => {
+      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+      if (!isChrome) {
+        alert("Please use Chrome for the best experience.");
+      }
+    };
+
     checkBrowserSupport();
+    requestMicPermission(); 
+    checkBrowser(); 
   }, []);
 
   const speakText = (text) => {
@@ -136,8 +159,12 @@ const TalkToPeer = () => {
 
   const listening = isRecording || isSpeaking;
 
-  if (browserSupport === null) {
-    return <div>Checking browser support...</div>;
+  if (browserSupport === null || micPermission === null) {
+    return <div>Checking browser support and mic permission...</div>;
+  }
+
+  if (!micPermission) {
+    return <div>Mic permission denied. Please allow mic access to proceed.</div>;
   }
 
   return (
