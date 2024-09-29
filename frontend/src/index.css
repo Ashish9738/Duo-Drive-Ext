@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* For Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -20,8 +19,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100px; /* Adjust as needed */
-  width: 100px; /* Adjust as needed */
+  height: 100px;
+  width: 100px;
   background-color: transparent;
 }
 
@@ -29,13 +28,13 @@
 .listening {
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2),
     rgba(0, 0, 0, 0.7)
   );
-  height: 100px; /* Match mic image size */
-  width: 100px; /* Match mic image size */
+  height: 100px;
+  width: 100px;
   border-radius: 50%;
-  animation: pulse 2s infinite; /* Add pulse animation */
+  animation: pulse 2s infinite;
   position: absolute;
   z-index: 1;
 }
@@ -60,10 +59,10 @@
 .fog {
   position: absolute;
   z-index: 0;
-  width: 120px; /* Adjust size if needed */
-  height: 120px; /* Adjust size if needed */
-  background: rgba(255, 255, 255, 0.05);
-  filter: blur(10px);
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  filter: blur(15px);
   border-radius: 50%;
   animation: fog-motion 4s infinite;
 }

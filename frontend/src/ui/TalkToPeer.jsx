@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import micImage from "../assets/mic.jpg";
 import axios from "axios";
@@ -7,7 +7,7 @@ import Loader from "../components/Loader";
 
 const TalkToPeer = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [response, setResponse] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [persistentTranscript, setPersistentTranscript] = useState("");
 
@@ -44,13 +44,20 @@ const TalkToPeer = () => {
   const speakText = (text) => {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-
       const chunks = text.match(/.{1,200}/g);
       let chunkIndex = 0;
 
       const speakNextChunk = () => {
         if (chunkIndex < chunks.length) {
           const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+          const voices = window.speechSynthesis.getVoices();
+          utterance.voice = voices.find(
+            (voice) => voice.name === "Google US English"
+          );
+
+          utterance.onstart = () => {
+            setIsSpeaking(true);
+          };
 
           utterance.onend = () => {
             chunkIndex++;
@@ -64,6 +71,7 @@ const TalkToPeer = () => {
           window.speechSynthesis.speak(utterance);
         } else {
           console.log("All chunks spoken.");
+          setIsSpeaking(false);
         }
       };
 
@@ -75,22 +83,17 @@ const TalkToPeer = () => {
 
   const generateResponse = async (text) => {
     setIsProcessing(true);
-    setResponse(null);
-
     const data = { prompt: text };
     try {
       const res = await axios.post(`${URL}/chat`, data);
-      console.log("Received response:", res.data);
       const modelResponse =
         res.data.history
           ?.filter((entry) => entry.role === "model")
           ?.map((entry) => entry.parts?.map((part) => part.text).join(" "))
           ?.join(" ") || "No response from model";
-      setResponse(modelResponse);
       speakText(modelResponse);
     } catch (error) {
       console.error("Failed to get the response", error);
-      setResponse("Error getting response from server.");
     } finally {
       setIsProcessing(false);
     }
@@ -106,10 +109,11 @@ const TalkToPeer = () => {
     } else {
       setPersistentTranscript("");
       setTranscript("");
-      setResponse(null);
       startSpeechToText();
     }
   };
+
+  const listening = isRecording || isSpeaking;
 
   if (error) {
     return <p>Web Speech API is not available in this browser: {error}</p>;
@@ -118,6 +122,13 @@ const TalkToPeer = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black text-white">
       <div className="talk-container relative mt-2">
+        {/* Effect for speaking or listening */}
+        {listening && (
+          <>
+            <div className="listening"></div>
+            <div className="fog"></div>
+          </>
+        )}
         <img
           src={micImage}
           alt="Microphone"
@@ -140,7 +151,7 @@ const TalkToPeer = () => {
 
       <div className="w-full max-w-md p-4 bg-gray-600 rounded-lg mb-2">
         <p className="mb-1">Transcript:</p>
-        <div className="h-[100px] overflow-y-auto bg-gray-500 p-2 rounded">
+        <div className="h-[100px] overflow-y-auto no-scrollbar bg-gray-500 p-2 rounded">
           {persistentTranscript}
           {transcript && <span className="text-gray-400"> {transcript}</span>}
         </div>
