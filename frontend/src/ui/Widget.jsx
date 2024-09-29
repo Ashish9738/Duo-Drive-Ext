@@ -16,15 +16,24 @@ const Widget = () => {
   const endOfMessagesRef = useRef(null);
 
   const handleChat = async () => {
-    const promptToBeSent = `Give me in the plain text ${input}`;
+    const promptToBeSent = `Please respond in plain text without asterisks or any formatting. ${input}`;
     const data = {
       prompt: promptToBeSent,
     };
     setLoader(true);
     try {
       const response = await axios.post(`${URL}/chat`, data);
-      const newHistory = [...history, ...response.data.history];
-      setHistory(newHistory);
+      const newHistory = response.data.history.map((entry) => ({
+        ...entry,
+        parts: entry.parts.map((part) => ({
+          ...part,
+          text: part.text.replace(
+            "Please respond in plain text without asterisks or any formatting. ",
+            ""
+          ),
+        })),
+      }));
+      setHistory([...history, ...newHistory]);
       setInput("");
       setLoader(false);
     } catch (error) {

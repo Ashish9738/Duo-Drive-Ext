@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import micImage from "../assets/mic.jpg";
 import axios from "axios";
@@ -10,6 +10,8 @@ const TalkToPeer = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [persistentTranscript, setPersistentTranscript] = useState("");
+
+  const transcriptRef = useRef(null);
 
   const {
     error,
@@ -32,6 +34,12 @@ const TalkToPeer = () => {
       setTranscript(interimResult);
     }
   }, [interimResult]);
+
+  useEffect(() => {
+    if (transcriptRef.current) {
+      transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+    }
+  }, [persistentTranscript, transcript]);
 
   useEffect(() => {
     if (results.length > 0 && results[results.length - 1].isFinal) {
@@ -83,7 +91,7 @@ const TalkToPeer = () => {
 
   const generateResponse = async (text) => {
     setIsProcessing(true);
-    const promptToBeSent = `Give me in the plain text ${text}`;
+    const promptToBeSent = `Please respond in plain text without asterisks or any formatting. ${text}`;
     const data = { prompt: promptToBeSent };
     try {
       const res = await axios.post(`${URL}/chat`, data);
@@ -156,7 +164,11 @@ const TalkToPeer = () => {
 
       <div className="w-full max-w-md p-4 bg-gray-600 rounded-lg mb-2">
         <p className="mb-1">Transcript:</p>
-        <div className="h-[100px] overflow-y-auto no-scrollbar bg-gray-500 p-2 rounded">
+
+        <div
+          className="h-[100px] overflow-y-auto no-scrollbar bg-gray-500 p-2 rounded"
+          ref={transcriptRef}
+        >
           {persistentTranscript}
           {transcript && <span className="text-gray-400"> {transcript}</span>}
         </div>
