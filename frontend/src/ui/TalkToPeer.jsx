@@ -4,14 +4,16 @@ import micImage from "../assets/mic.jpg";
 import axios from "axios";
 import { URL } from "../utils/constant";
 import Loader from "../components/Loader";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
-const TalkToPeer = () => {
+const TalkToPeer = ({ onClick }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [persistentTranscript, setPersistentTranscript] = useState("");
   const [browserSupport, setBrowserSupport] = useState(null);
-  const [micPermission, setMicPermission] = useState(null); 
+  const [micPermission, setMicPermission] = useState(null);
+
   const transcriptRef = useRef(null);
 
   const {
@@ -50,7 +52,6 @@ const TalkToPeer = () => {
     }
   }, [results]);
 
-  
   const requestMicPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -72,15 +73,17 @@ const TalkToPeer = () => {
     };
 
     const checkBrowser = () => {
-      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+      const isChrome =
+        /Chrome/.test(navigator.userAgent) &&
+        /Google Inc/.test(navigator.vendor);
       if (!isChrome) {
         alert("Please use Chrome for the best experience.");
       }
     };
 
     checkBrowserSupport();
-    requestMicPermission(); 
-    checkBrowser(); 
+    requestMicPermission();
+    checkBrowser();
   }, []);
 
   const speakText = (text) => {
@@ -160,15 +163,30 @@ const TalkToPeer = () => {
   const listening = isRecording || isSpeaking;
 
   if (browserSupport === null || micPermission === null) {
-    return <div>Checking browser support and mic permission...</div>;
+    return (
+      <div className="text-white font-mono text-sm">
+        Checking browser support and mic permission...
+      </div>
+    );
   }
 
   if (!micPermission) {
-    return <div>Mic permission denied. Please allow mic access to proceed.</div>;
+    return (
+      <div className="text-white font-mono text-sm">
+        Mic permission denied. Please allow mic access to proceed.
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-black text-white">
+      <div>
+        <IoMdArrowRoundBack
+          onClick={onClick}
+          className="cursor-pointer absolute top-0 left-0"
+          size={24}
+        />
+      </div>
       <div className="talk-container relative mt-2">
         {/* Effect for speaking or listening */}
         {listening && (
