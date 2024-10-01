@@ -6,7 +6,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", /^chrome-extension:\/\/.+/],
+    origin: [
+      "http://localhost:5173",
+      /^chrome-extension:\/\/.+/,
+      "https://duo-drive-ext.vercel.app",
+    ],
   })
 );
 app.use(express.json());
