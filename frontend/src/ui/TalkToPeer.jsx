@@ -96,26 +96,22 @@ const TalkToPeer = ({ onClick }) => {
         if (chunkIndex < chunks.length) {
           const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
           const voices = window.speechSynthesis.getVoices();
-          utterance.voice = voices.find(
-            (voice) => voice.name === "Google US English"
-          );
+          const selectedVoice =
+            voices.find((voice) => voice.name === "Google US English") ||
+            voices.find((voice) => voice.lang.startsWith("en"));
 
-          utterance.onstart = () => {
-            setIsSpeaking(true);
-          };
+          utterance.voice = selectedVoice || voices[0];
 
+          utterance.onstart = () => setIsSpeaking(true);
           utterance.onend = () => {
             chunkIndex++;
             speakNextChunk();
           };
-
-          utterance.onerror = (event) => {
+          utterance.onerror = (event) =>
             console.error("Speech synthesis error:", event.error);
-          };
 
           window.speechSynthesis.speak(utterance);
         } else {
-          console.log("All chunks spoken.");
           setIsSpeaking(false);
         }
       };
