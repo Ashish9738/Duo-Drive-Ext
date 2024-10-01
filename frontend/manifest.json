@@ -12,6 +12,5 @@
     "32": "icon32.jpeg",
     "48": "icon48.jpeg",
     "128": "icon128.jpeg"
-  },
-  "permissions": ["activeTab", "storage", "tabCapture"]
+  }
 }

@@ -72,7 +72,7 @@ const Widget = () => {
                   }`}
                 >
                   <Card
-                    content={`${entry.role === "user" ? "You:" : "Gemini:"} ${
+                    content={`${entry.role === "user" ? "You:" : "NavyaAI:"} ${
                       part.text
                     }`}
                   />
@@ -93,7 +93,8 @@ const Widget = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleChat();
-                }}}
+                }
+              }}
             />
             {loader ? <Loader /> : <Button onClick={handleChat} />}
           </div>
