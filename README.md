@@ -5,8 +5,3 @@
 - This is project is built for Google GenAI Hackathon.
 
 > Note: Currently we've stopped working on it. Need to complete it
-
-- Currently you can test here.
-- First req might take a minute, after that you are good to go...
-
-[Test here](https://duo-drive-ext.vercel.app/)
